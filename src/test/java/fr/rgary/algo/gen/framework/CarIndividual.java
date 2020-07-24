@@ -1,5 +1,8 @@
 package fr.rgary.algo.gen.framework;
 
+import fr.rgary.algo.gen.framework.machinelearning.NeuralNetwork;
+import fr.rgary.algo.gen.framework.tracks.Track;
+import fr.rgary.algo.gen.framework.trigonometry.Point;
 import org.ejml.data.DMatrixRMaj;
 
 import java.util.ArrayList;
@@ -18,6 +21,10 @@ public class CarIndividual extends Individual {
     public DMatrixRMaj theta1 = new DMatrixRMaj(FIRST_HIDDEN_LAYER_SIZE, INPUT_LAYER_SIZE + 1);
     public DMatrixRMaj theta2 = new DMatrixRMaj(SECOND_HIDDEN_LAYER_SIZE, FIRST_HIDDEN_LAYER_SIZE + 1);
     public DMatrixRMaj theta3 = new DMatrixRMaj(NUM_LABEL, SECOND_HIDDEN_LAYER_SIZE + 1);
+    public Point startPoint;
+    public Point position;
+    public int maxZoneEntered;
+    public int moveDone;
 
     public CarIndividual() {
         super();
@@ -26,6 +33,8 @@ public class CarIndividual extends Individual {
     public CarIndividual(final Individual other) {
         super(other);
         this.startPoint = Track.instance.startPoint;
+        this.maxZoneEntered = -1;
+        this.moveDone = 0;
         this.position = this.startPoint.clone();
         this.theta1 = new DMatrixRMaj(((CarIndividual)other).theta1);
         this.theta2 = new DMatrixRMaj(((CarIndividual)other).theta2);
@@ -67,7 +76,7 @@ public class CarIndividual extends Individual {
     @Override
     public void calcFitness() {
 //        throw new InternalError("NOT YET IMPLEMENTED");
-        int carInZone = Constant.TRACK.getZoneNumberPerPosition(this.position);
+        int carInZone = Track.instance.getZoneNumberPerPosition(this.position);
         if (carInZone < this.maxZoneEntered || carInZone == -1) {
             LOGGER.warn("U-turns are BAD. You were in zone {} but returned to {}", this.maxZoneEntered, carInZone);
             this.deactivate();
